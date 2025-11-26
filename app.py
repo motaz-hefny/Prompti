@@ -144,7 +144,68 @@ with col_form:
     st.markdown("---")
 
     # Step 14: Action buttons in form column
-    col_gen, col_ex, col_reset = st.columns(3)
+    col_ai, col_gen, col_ex, col_reset = st.columns(4)
+
+    # Step 14-AI: "Enhance with AI" button
+    with col_ai:
+        if st.button(
+            label='✨ AI',
+            use_container_width=True,
+            key='btn_ai_enhance',
+            help=t(st.session_state['lang'], 'ai_button_help') if t(st.session_state['lang'], 'ai_button_help') else 'Enhance with AI'
+        ):
+            # Step 14-AI-i: Try to import AI enhancer module
+            try:
+                from ai_enhancer import init_gemini_api, enhance_prompt_with_ai
+                import os
+                
+                # Step 14-AI-ii: Check if API key is available
+                api_key = os.getenv('GOOGLE_GENAI_API_KEY')
+                
+                if not api_key:
+                    # Step 14-AI-iii: No API key found
+                    st.warning(
+                        "⚠️ Google Gemini API key not configured.\n\n"
+                        "Get a free key:\n"
+                        "1. Visit: https://ai.google.dev/apikey\n"
+                        "2. Click 'Get API Key'\n"
+                        "3. Copy your key\n"
+                        "4. Set environment variable: GOOGLE_GENAI_API_KEY=your_key\n"
+                        "5. Restart the app"
+                    )
+                else:
+                    # Step 14-AI-iv: Initialize API and enhance prompt
+                    init_gemini_api(api_key)
+                    
+                    # Step 14-AI-v: Collect current input from fields
+                    current_fields = st.session_state['fields'][st.session_state['framework']]
+                    user_input = "\n".join([f"{k}: {v}" for k, v in current_fields.items() if v])
+                    
+                    if not user_input.strip():
+                        st.info(t(st.session_state['lang'], 'ai_empty_input') or "Please fill in at least one field first")
+                    else:
+                        # Step 14-AI-vi: Show spinner while enhancing
+                        with st.spinner(t(st.session_state['lang'], 'ai_enhancing') or "🤖 Enhancing with AI..."):
+                            success, enhanced = enhance_prompt_with_ai(
+                                user_input=user_input,
+                                framework=st.session_state['framework'],
+                                lang=st.session_state['lang']
+                            )
+                        
+                        if success and enhanced:
+                            # Step 14-AI-vii: Update fields with enhanced values
+                            st.session_state['fields'][st.session_state['framework']].update(enhanced)
+                            st.success(t(st.session_state['lang'], 'ai_success') or "✨ Prompt enhanced!")
+                            st.rerun()
+                        else:
+                            st.info(t(st.session_state['lang'], 'ai_failed') or "AI enhancement unavailable, using your input as-is")
+                            
+            except ImportError:
+                # Step 14-AI-viii: AI module not available
+                st.error("AI enhancement module not available. Install: pip install google-generativeai")
+            except Exception as e:
+                # Step 14-AI-ix: Catch any other errors
+                st.error(f"Error enhancing prompt: {str(e)}")
 
     # Step 14a: "Generate Prompt" button
     with col_gen:

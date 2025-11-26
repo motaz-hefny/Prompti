@@ -102,12 +102,20 @@ TRANSLATIONS = {
         'mock_signin_info': 'This is a mock sign-in UI.',
         'copy_success': 'Prompt copied to clipboard.',
         'copy_fail': 'Clipboard not available. Use Download button.',
+        'copy_info': 'Copy button: Select the text below and press Ctrl+C (or Cmd+C).',
         'preview_label': 'Live preview (updates as you type)',
         'generated_label': 'Final generated prompt',
         'example_filled': 'Example fields inserted.',
         'reset_done': 'Fields cleared.',
         'required_error': 'Please fill required fields or enable "Allow blanks".',
         'smoke_ok': 'Smoke checks passed.',
+        
+        # ==== AI Enhancement ====
+        'ai_button_help': 'Click to enhance your input with AI (uses Google Gemini)',
+        'ai_enhancing': '🤖 AI is enhancing your prompt...',
+        'ai_success': '✨ Prompt enhanced successfully!',
+        'ai_failed': 'AI enhancement unavailable. Using your input as-is.',
+        'ai_empty_input': 'Please fill in at least one field first',
     },
 
     # ========================================================================
@@ -187,12 +195,20 @@ TRANSLATIONS = {
         'mock_signin_info': 'هذه واجهة تسجيل دخول تجريبية.',
         'copy_success': 'تم نسخ العبارة إلى الحافظة.',
         'copy_fail': 'الميزة غير متاحة. استخدم زر التنزيل.',
+        'copy_info': 'زر النسخ: حدّد النص أدناه واضغط Ctrl+C (أو Cmd+C).',
         'preview_label': 'معاينة مباشرة (تتحدّث أثناء الكتابة)',
         'generated_label': 'العبارة النهائية المولّدة',
         'example_filled': 'تم إدخال المثال في الحقول.',
         'reset_done': 'تم تنظيف الحقول.',
         'required_error': 'يرجى تعبئة الحقول المطلوبة أو تفعيل "السماح بالفراغات".',
         'smoke_ok': 'اختبارات التدخين ناجحة.',
+        
+        # ==== AI Enhancement ====
+        'ai_button_help': 'انقر لتحسين إدخالك باستخدام الذكاء الاصطناعي (يستخدم Google Gemini)',
+        'ai_enhancing': '🤖 الذكاء الاصطناعي يحسّن عبارتك...',
+        'ai_success': '✨ تم تحسين العبارة بنجاح!',
+        'ai_failed': 'تحسين الذكاء الاصطناعي غير متاح. استخدام إدخالك كما هو.',
+        'ai_empty_input': 'يرجى تعبئة حقل واحد على الأقل أولاً',
     },
 
     # ========================================================================
@@ -272,12 +288,20 @@ TRANSLATIONS = {
         'mock_signin_info': 'دي تجربة تسجيل دخول، مش دخول حقيقي.',
         'copy_success': 'اتنسخت! جاهز تلزقها.',  # Will be overridden by EG_SLANG_VARIANTS
         'copy_fail': 'مفيش صلاحية للحافظة. جرّب تنزيل الملف.',
+        'copy_info': 'اضغط Ctrl+C (أو Cmd+C) عشان تنسخ النص.',
         'preview_label': 'المعاينة الحيّة (بتتحدّث وانت بتكتب)',
         'generated_label': 'البرومبت النهائي',
         'example_filled': 'اتعبّيت الحقول بالمثال.',
         'reset_done': 'اتفرّغت الحقول.',
         'required_error': 'كمّل الحقول المطلوبة ولا فعل "خلي الحقول فاضية".',
         'smoke_ok': 'الشيكات نجحت.',
+        
+        # ==== AI Enhancement ====
+        'ai_button_help': 'اضغط هنا عشان الذكاء الاصطناعي يحسّن الكلام بتاعك',
+        'ai_enhancing': '🤖 الذكاء الاصطناعي بيشتغل على البرومبت...',
+        'ai_success': '✨ تمام! الذكاء الاصطناعي حسّن البرومبت!',
+        'ai_failed': 'الذكاء الاصطناعي مش متاح دلوقتي. بس خليك في البرومبت بتاعك.',
+        'ai_empty_input': 'ملّي حقل واحد على الأقل بالأول',
     }
 }
 
