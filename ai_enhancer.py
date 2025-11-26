@@ -184,6 +184,69 @@ def get_working_model() -> str:
     return MODEL_NAME
 
 
+def list_available_models() -> dict:
+    """Attempt multiple SDK calls to retrieve a list of available models.
+
+    Returns a dict with either {'models': [...]} or {'error': '...'}.
+    This tries several likely method names across genai SDK versions to be maximally compatible.
+    """
+    if not GENAI_AVAILABLE:
+        return {'error': 'Generative AI SDK not installed'}
+
+    try_methods = [
+        lambda: genai.list_models(),
+        lambda: genai.get_models(),
+        # Some SDK variants expose models under genai.models.list()
+        lambda: getattr(genai, 'models').list(),
+    ]
+
+    for fn in try_methods:
+        try:
+            raw = fn()
+            models = []
+            # Normalize different return types
+            if isinstance(raw, dict):
+                # e.g. {'models': [...]}
+                for k in ('models', 'data'):
+                    if k in raw and isinstance(raw[k], (list, tuple)):
+                        for m in raw[k]:
+                            try:
+                                models.append(m.get('name') or m.get('id') or str(m))
+                            except Exception:
+                                models.append(str(m))
+                        break
+            elif isinstance(raw, (list, tuple)):
+                for m in raw:
+                    try:
+                        models.append(m.get('name') or m.get('id') or str(m))
+                    except Exception:
+                        models.append(str(m))
+            else:
+                # Try to iterate attributes
+                try:
+                    for m in raw:
+                        models.append(getattr(m, 'name', getattr(m, 'id', str(m))))
+                except Exception:
+                    models.append(str(raw))
+
+            # Deduplicate and return first 50
+            seen = []
+            for x in models:
+                if x not in seen:
+                    seen.append(x)
+            return {'models': seen[:50]}
+        except Exception:
+            continue
+
+    return {'error': 'Could not list models with available SDK methods'}
+
+
+def set_selected_model(name: str) -> None:
+    """Force the enhancer to use the given model name for subsequent calls."""
+    global SELECTED_MODEL
+    SELECTED_MODEL = name
+
+
 # ==============================================================================
 # PROMPT ENHANCEMENT
 # ==============================================================================

@@ -75,6 +75,25 @@ with st.sidebar.expander('🛠️ AI debug (temporary)', expanded=False):
     st.write('- Secret configured (env or st.secrets):', secret_present_local)
     st.write('- If either is False, check Logs after a failed attempt')
     st.caption('This panel is temporary for diagnosing AI setup. I will remove it after we confirm everything works.')
+    # Button: list available models via the deployed SDK
+    try:
+        from ai_enhancer import list_available_models, set_selected_model
+
+        if st.button('🔎 List available models'):
+            with st.spinner('Listing models...'):
+                res = list_available_models()
+                if 'models' in res:
+                    st.success(f"Found {len(res['models'])} models")
+                    # show a selectbox to pick one
+                    choice = st.selectbox('Pick a model to use (temporary override)', ['(none)'] + res['models'])
+                    if choice and choice != '(none)':
+                        if st.button('Use selected model'):
+                            set_selected_model(choice)
+                            st.success(f'Selected model: {choice}')
+                else:
+                    st.error(res.get('error', 'No models found'))
+    except Exception:
+        st.caption('Model listing not available in this build')
 
 
 # Step 6: Language selector (radio button)
