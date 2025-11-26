@@ -238,7 +238,30 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
     except Exception as e:
         # Step 11: Return failure with error details so UI can show useful diagnostics
         err = str(e)
-        return False, {'_error': f'Exception during AI call: {err}'}
+        diagnostic = {'_error': f'Exception during AI call: {err}'}
+
+        # If the error indicates the model is not found / unsupported, try to list available models
+        try:
+            # genai may provide a listing function; call it if available to help diagnose
+            if 'genai' in globals() and hasattr(genai, 'list_models'):
+                models = genai.list_models()
+                # models may be a list of dict-like objects; extract ids/names
+                model_ids = []
+                for m in models:
+                    try:
+                        model_ids.append(m.get('name') or m.get('id') or str(m))
+                    except Exception:
+                        model_ids.append(str(m))
+                diagnostic['_available_models'] = model_ids[:20]
+            elif 'genai' in globals() and hasattr(genai, 'get_models'):
+                models = genai.get_models()
+                model_ids = [getattr(m, 'name', str(m)) for m in models]
+                diagnostic['_available_models'] = model_ids[:20]
+        except Exception:
+            # Ignore any failures when attempting to list models — return original diagnostic
+            pass
+
+        return False, diagnostic
 
 
 # ==============================================================================
