@@ -225,16 +225,20 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
         # Step 9: If JSON found, try to parse it
         if json_start >= 0 and json_end > json_start:
             json_str = response_text[json_start:json_end]
-            result = json.loads(json_str)
-            return True, result
+            try:
+                result = json.loads(json_str)
+                return True, result
+            except Exception as e:
+                # Parsing failed — return failure with error details
+                return False, {'_error': f'Failed to parse JSON from model response: {str(e)}', '_raw_response': response_text[:200]}
         else:
-            # Step 10: If no JSON found, return failure
-            return False, {}
+            # Step 10: If no JSON found, return failure with raw response for diagnosis
+            return False, {'_error': 'No JSON object found in model response', '_raw_response': response_text[:200]}
             
     except Exception as e:
-        # Step 11: Log error and return failure
-        print(f"Error enhancing prompt with AI: {e}")
-        return False, {}
+        # Step 11: Return failure with error details so UI can show useful diagnostics
+        err = str(e)
+        return False, {'_error': f'Exception during AI call: {err}'}
 
 
 # ==============================================================================

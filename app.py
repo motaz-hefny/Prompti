@@ -366,7 +366,22 @@ with col_form:
                             st.success(t(st.session_state['lang'], 'ai_success') or "✨ Prompt enhanced!")
                             st.rerun()
                         else:
-                            st.info(t(st.session_state['lang'], 'ai_failed') or "AI enhancement unavailable, using your input as-is")
+                            # If the enhancer returned diagnostic info, show it to the user
+                            err_msg = None
+                            if isinstance(enhanced, dict):
+                                err_msg = enhanced.get('_error')
+                                raw = enhanced.get('_raw_response')
+                            else:
+                                raw = None
+
+                            if err_msg:
+                                with st.expander('AI diagnostic (temporary)', expanded=True):
+                                    st.error('AI enhancement failed: ' + err_msg)
+                                    if raw:
+                                        st.caption('Partial model output (truncated):')
+                                        st.code(raw)
+                            else:
+                                st.info(t(st.session_state['lang'], 'ai_failed') or "AI enhancement unavailable, using your input as-is")
                             
             except ImportError:
                 # Step 14-AI-viii: AI module not available
