@@ -29,6 +29,20 @@ except ImportError:
 # Step 2a: Using gemini-1.5-flash (fastest, most free requests)
 MODEL_NAME = "gemini-1.5-flash"
 
+# Candidate model names to try if the default MODEL_NAME is not available.
+# We'll try them in order and cache the first one that successfully responds.
+MODEL_CANDIDATES = [
+    "gemini-1.5-flash",
+    "gemini-1.5",
+    "gemini-1.0",
+    "models/text-bison-001",
+    "text-bison@001",
+    "chat-bison@001",
+]
+
+# Cached selected model after a successful probe
+SELECTED_MODEL = None
+
 # Step 2b: System prompts for prompt enhancement (in multiple languages)
 ENHANCEMENT_PROMPTS = {
     'en': """You are an expert prompt engineer. Your job is to take raw, incomplete user inputs 
@@ -126,6 +140,48 @@ def init_gemini_api(api_key: str = None) -> bool:
         # Step 4: Log error and return False on failure
         print(f"Error initializing Gemini API: {e}")
         return False
+
+
+def _probe_model(candidate: str) -> bool:
+    """Try a minimal call to the model to confirm it supports generate_content.
+
+    Returns True if the probe succeeds (no model-not-found or unsupported-method errors).
+    This uses a very small prompt to minimize cost and side effects.
+    """
+    global SELECTED_MODEL
+    if not GENAI_AVAILABLE:
+        return False
+
+    try:
+        model = genai.GenerativeModel(candidate)
+        # Minimal harmless prompt
+        response = model.generate_content(contents=[{'role': 'user', 'parts': [{'text': 'Hello'}]}])
+        # If we get text back, assume it worked
+        if getattr(response, 'text', None):
+            SELECTED_MODEL = candidate
+            return True
+        return False
+    except Exception:
+        return False
+
+
+def get_working_model() -> str:
+    """Return a working model name, probing candidates if needed.
+
+    Caches the successful model in `SELECTED_MODEL`.
+    """
+    global SELECTED_MODEL
+    if SELECTED_MODEL:
+        return SELECTED_MODEL
+
+    # Try default first
+    candidates = [MODEL_NAME] + [c for c in MODEL_CANDIDATES if c != MODEL_NAME]
+    for cand in candidates:
+        if _probe_model(cand):
+            return SELECTED_MODEL
+
+    # If none worked, leave SELECTED_MODEL as None and return default for best-effort
+    return MODEL_NAME
 
 
 # ==============================================================================
