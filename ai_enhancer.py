@@ -49,7 +49,9 @@ SELECTED_MODEL = None
 
 # Step 2b: System prompts for prompt enhancement (in multiple languages)
 ENHANCEMENT_PROMPTS = {
-    'en': """You are an expert prompt engineer. Your job is to take raw, incomplete user inputs 
+    'en': (
+        """
+You are an expert prompt engineer. Your job is to take raw, incomplete user inputs
 and transform them into professional, well-structured prompts ready for AI assistants.
 
 When given user input, you should:
@@ -57,11 +59,19 @@ When given user input, you should:
 2. Fill in missing fields intelligently based on context
 3. Expand vague inputs into specific, actionable instructions
 4. Maintain the user's original intent while improving clarity
-5. Return ONLY the enhanced field values as JSON (no explanations)
 
-Format: Return a JSON object with framework field names as keys and enhanced values.""",
+CRITICAL (follow exactly):
+- Return a single valid JSON object and nothing else. Do not include any explanatory text, headings, or markdown.
+- The JSON object must begin with '{' and end with '}' and contain only the framework field names as keys.
+- If you cannot produce a value for a field, return an empty string for that key.
 
-    'ar': """أنت خبير متخصص في هندسة الأوامر. مهمتك تحويل المدخلات الخام والغير مكتملة من المستخدمين 
+Format: Return a JSON object with framework field names as keys and enhanced values.
+        """
+    ),
+
+    'ar': (
+        """
+أنت خبير متخصص في هندسة الأوامر. مهمتك تحويل المدخلات الخام والغير مكتملة من المستخدمين
 إلى أوامر احترافية منظمة وجاهزة لمساعدات الذكاء الاصطناعي.
 
 عند إعطاؤك مدخلات المستخدم، يجب عليك:
@@ -69,11 +79,19 @@ Format: Return a JSON object with framework field names as keys and enhanced val
 2. ملء الحقول المفقودة بذكاء بناءً على السياق
 3. توسيع المدخلات الغامضة إلى تعليمات محددة وقابلة للتنفيذ
 4. الحفاظ على القصد الأصلي للمستخدم مع تحسين الوضوح
-5. أرجع ONLY القيم المحسّنة كـ JSON (بدون شروحات)
 
-الصيغة: أرجع كائن JSON به أسماء حقول الإطار كمفاتيح والقيم المحسّنة.""",
+مهم (التزم حرفياً):
+- أعِد كائن JSON واحد فقط ولا تُدرج أي نص توضيحي أو عناوين أو تنسيقات Markdown.
+- يجب أن يبدأ كائن JSON بـ '{' وينتهي بـ '}' ويحتوي فقط على أسماء حقول الإطار كمفاتيح.
+- إن لم تستطع توليد قيمة لحقل ما، أعد سلسلة فارغة لذلك المفتاح.
 
-    'eg': """أنت خبير في فن كتابة الأوامر. الشغلة اللي بتعملها إنك تاخد المدخلات الخام من المستخدم 
+الصيغة: أرجع كائن JSON به أسماء حقول الإطار كمفاتيح والقيم المحسّنة.
+        """
+    ),
+
+    'eg': (
+        """
+أنت خبير في فن كتابة الأوامر. الشغلة اللي بتعملها إنك تاخد المدخلات الخام من المستخدم
 وتحولها لأوامر احترافية جاهزة للذكاء الاصطناعي.
 
 عند ما تتعطى مدخلات المستخدم، لازم:
@@ -81,9 +99,15 @@ Format: Return a JSON object with framework field names as keys and enhanced val
 2. تملي الحقول الناقصة بذكاء من السياق
 3. تاخد المدخلات الغامضة وتكتبها بشكل واضح ومحدد
 4. تحافظ على قصد المستخدم وتحسن الكلام
-5. أرجع قيم محسّنة بس كـ JSON (بدون شروح)
 
-الصيغة: أرجع كائن JSON به أسماء الحقول والقيم المحسّنة."""
+هام (مراعاة حرفية):
+- رجّع كائن JSON واحد فقط ومفيش أي كلام تاني، ولا عناوين ولا Markdown.
+- لازم يبدأ بـ '{' وينتهي بـ '}' ويحط بس أسماء الحقول كمفاتيح.
+- لو مش قادر تدي قيمة لحقل سيبها "" (سلسلة فاضية).
+
+الصيغة: أرجع كائن JSON به أسماء الحقول والقيم المحسّنة.
+        """
+    ),
 }
 
 # ==============================================================================
@@ -336,7 +360,8 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
                 {'role': 'user', 'parts': [{'text': system_prompt}]},
                 {'role': 'model', 'parts': [{'text': 'I understand. I will enhance prompts by filling in missing framework fields intelligfully.'}]},
                 {'role': 'user', 'parts': [{'text': user_message}]}
-            ]
+            ],
+            temperature=0
         )
         
         # Step 7: Parse the response
@@ -440,7 +465,7 @@ Return ONLY JSON with field names and suggested values."""
     try:
         working_model = get_working_model()
         model = genai.GenerativeModel(working_model)
-        response = model.generate_content(user_message)
+        response = model.generate_content(user_message, temperature=0)
         
         # Step 5: Parse JSON from response
         json_start = response.text.find('{')
