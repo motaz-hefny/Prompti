@@ -11,6 +11,7 @@
 
 import os
 import json
+import re
 from typing import Tuple
 
 # Step 1: Try to import genai (Google Gemini SDK)
@@ -364,25 +365,63 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
         )
         
         # Step 7: Parse the response
-        response_text = response.text
-        
-        # Step 8: Extract JSON from response
-        # (Genai might include markdown or explanation, so we need to extract JSON)
-        json_start = response_text.find('{')
-        json_end = response_text.rfind('}') + 1
-        
-        # Step 9: If JSON found, try to parse it
-        if json_start >= 0 and json_end > json_start:
-            json_str = response_text[json_start:json_end]
+        response_text = getattr(response, 'text', str(response))
+
+        # Helper: try to load JSON safely from string
+        def try_load(s: str):
             try:
-                result = json.loads(json_str)
-                return True, result
-            except Exception as e:
-                # Parsing failed — return failure with error details
-                return False, {'_error': f'Failed to parse JSON from model response: {str(e)}', '_raw_response': response_text[:200]}
-        else:
-            # Step 10: If no JSON found, return failure with raw response for diagnosis
-            return False, {'_error': 'No JSON object found in model response', '_raw_response': response_text[:200]}
+                return json.loads(s)
+            except Exception:
+                return None
+
+        # 1) Look for fenced JSON blocks ```json ... ``` or ``` ... ```
+        m = re.search(r'```\s*json\s*(.*?)```', response_text, re.S | re.I)
+        if not m:
+            m = re.search(r'```(.*?)```', response_text, re.S)
+        if m:
+            candidate = m.group(1).strip()
+            parsed = try_load(candidate)
+            if parsed is not None:
+                return True, parsed
+
+        # 2) Try a naive first/last brace extraction, with cleaning of control chars
+        # Remove problematic non-printable control characters except common whitespace (\n, \t, \r)
+        cleaned = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f]', '', response_text)
+
+        # Find all balanced JSON objects by scanning braces
+        def find_json_objects(s: str):
+            objs = []
+            stack = 0
+            start = None
+            for i, ch in enumerate(s):
+                if ch == '{':
+                    if stack == 0:
+                        start = i
+                    stack += 1
+                elif ch == '}' and stack > 0:
+                    stack -= 1
+                    if stack == 0 and start is not None:
+                        objs.append(s[start:i+1])
+                        start = None
+            return objs
+
+        candidates = find_json_objects(cleaned)
+        for cand in candidates:
+            parsed = try_load(cand)
+            if parsed is not None:
+                return True, parsed
+
+        # 3) Last resort: try the simple first { .. last } slice on cleaned text
+        jstart = cleaned.find('{')
+        jend = cleaned.rfind('}')
+        if jstart != -1 and jend != -1 and jend > jstart:
+            maybe = cleaned[jstart:jend+1]
+            parsed = try_load(maybe)
+            if parsed is not None:
+                return True, parsed
+
+        # Nothing parsed — return failure with raw response for diagnosis
+        return False, {'_error': 'Failed to parse JSON from model response', '_raw_response': response_text[:1000]}
             
     except Exception as e:
         # Step 11: Return failure with error details so UI can show useful diagnostics
