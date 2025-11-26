@@ -27,17 +27,20 @@ except ImportError:
 
 # Google Gemini model version to use
 # Step 2a: Using gemini-1.5-flash (fastest, most free requests)
-MODEL_NAME = "gemini-1.5-flash"
+# Use a conservative, broadly-supported model by default.
+# Many deployments accept 'models/text-bison-001' (see Google models docs).
+MODEL_NAME = "models/text-bison-001"
 
 # Candidate model names to try if the default MODEL_NAME is not available.
-# We'll try them in order and cache the first one that successfully responds.
+# Order: text-bison/chat-bison variants first, then gemini variants.
 MODEL_CANDIDATES = [
-    "gemini-1.5-flash",
-    "gemini-1.5",
-    "gemini-1.0",
     "models/text-bison-001",
     "text-bison@001",
+    "models/chat-bison-001",
     "chat-bison@001",
+    "gemini-1.0",
+    "gemini-1.5",
+    "gemini-1.5-flash",
 ]
 
 # Cached selected model after a successful probe
