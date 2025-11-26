@@ -58,7 +58,9 @@ st.sidebar.markdown("## ⚙️ Settings")
 # Step 6: Language selector (radio button)
 # Translates ALL UI text when changed
 # Stores in st.session_state['lang'] ('en', 'ar', or 'eg')
-st.session_state['lang'] = st.sidebar.radio(
+# DO NOT use st.session_state['lang'] = ... when key='lang' is set
+# The key parameter automatically manages session state assignment
+st.sidebar.radio(
     label=t(st.session_state['lang'], 'language_label'),  # "Language" / "اللغة" / "اللغة"
     options=['en', 'ar', 'eg'],
     format_func=lambda x: {'en': 'English', 'ar': 'العربية', 'eg': 'مصرّي'}[x],
@@ -67,8 +69,9 @@ st.session_state['lang'] = st.sidebar.radio(
 
 # Step 7: Framework selector (dropdown)
 # Switching frameworks preserves field state for each framework
-# Stores in st.session_state['framework']
-st.session_state['framework'] = st.sidebar.selectbox(
+# Stores in st.session_state['framework'] via key parameter
+# DO NOT use st.session_state['framework'] = ... when key is set
+st.sidebar.selectbox(
     label=t(st.session_state['lang'], 'framework_label'),  # "Framework" / "الإطار"
     options=['ICDF', 'RCR-EOC', 'MICRO', 'COSTAR'],
     key='framework'
