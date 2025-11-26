@@ -1,0 +1,34 @@
+# requirements.txt — Python Package Dependencies
+# ============================================================================
+# This file lists all Python packages required to run Prompti.
+# Install with: pip install -r requirements.txt
+#
+# Package list:
+#   - streamlit: Web framework for rapid Prompt generator UI
+#   - pyperclip: Cross-platform clipboard access for copy-to-clipboard feature
+#   - python-dotenv: Load environment variables from .env file (future: for OAuth secrets)
+#
+# Notes:
+#   - All versions pinned for reproducible environments
+#   - Compatible with Python 3.9+
+#   - Lightweight dependencies (minimal bloat for fast deployment)
+# ============================================================================
+
+# Step 1: Streamlit — Web app framework
+# Provides: st.button(), st.text_area(), st.columns(), etc.
+# Version: >=1.28.0 (ensure latest features and fixes)
+streamlit>=1.28.0
+
+# Step 2: Pyperclip — Cross-platform clipboard access
+# Provides: pyperclip.copy() for "Copy to Clipboard" feature
+# Version: Latest (no breaking changes expected)
+pyperclip>=1.8.2
+
+# Step 3: Python-dotenv — Environment variable loader
+# Provides: load_dotenv() for loading OAuth secrets from .env file
+# Version: >=1.0.0 (for future OAuth integration)
+python-dotenv>=1.0.0
+
+# ==============================================================================
+# END requirements.txt
+# ==============================================================================

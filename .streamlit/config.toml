@@ -1,0 +1,22 @@
+# Prompti Streamlit Deployment Configuration
+# This file configures the app for Streamlit Community Cloud deployment
+
+[theme]
+primaryColor = "#4CAF50"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"
+font = "sans serif"
+
+[client]
+showErrorDetails = true
+
+[logger]
+level = "info"
+
+[browser]
+gatherUsageStats = false
+
+# RTL Support for Arabic/Egyptian languages
+[client]
+toolbarMode = "minimal"
