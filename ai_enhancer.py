@@ -12,6 +12,7 @@
 import os
 import json
 import re
+import traceback
 from typing import Tuple
 
 # Step 1: Try to import genai (Google Gemini SDK)
@@ -46,7 +47,9 @@ MODEL_CANDIDATES = [
 ]
 
 # Cached selected model after a successful probe
-SELECTED_MODEL = None
+# For stability in deployment, prefer a known-good model by default.
+# This forces the enhancer to use Gemini 2.5 Flash unless explicitly changed.
+SELECTED_MODEL = "models/gemini-2.5-flash"
 
 # Step 2b: System prompts for prompt enhancement (in multiple languages)
 ENHANCEMENT_PROMPTS = {
@@ -65,6 +68,11 @@ CRITICAL (follow exactly):
 - Return a single valid JSON object and nothing else. Do not include any explanatory text, headings, or markdown.
 - The JSON object must begin with '{' and end with '}' and contain only the framework field names as keys.
 - If you cannot produce a value for a field, return an empty string for that key.
+
+STRICT OUTPUT RULES (VERY IMPORTANT):
+- Your response MUST be exactly one valid JSON object and nothing else — no commentary, no code fences, no leading or trailing characters.
+- If you cannot produce a valid JSON object for any reason, respond exactly with an empty JSON object: {}
+- Do not include ellipses, notes, or examples. Only the JSON object is allowed.
 
 Format: Return a JSON object with framework field names as keys and enhanced values.
         """
@@ -86,6 +94,11 @@ Format: Return a JSON object with framework field names as keys and enhanced val
 - يجب أن يبدأ كائن JSON بـ '{' وينتهي بـ '}' ويحتوي فقط على أسماء حقول الإطار كمفاتيح.
 - إن لم تستطع توليد قيمة لحقل ما، أعد سلسلة فارغة لذلك المفتاح.
 
+قواعد صارمة للخروج (هامة جداً):
+- يجب أن تكون استجابتك كائن JSON واحد صحيح وحسب — لا تعليقات ولا أقسام إضافية.
+- إذا لم تستطع توليد JSON صالح لأي سبب، أعد الاستجابة بالضبط كائن JSON فارغ: {}
+- لا تضف حروف زائدة أو تفسيرات أو أمثلة. فقط كائن JSON.
+
 الصيغة: أرجع كائن JSON به أسماء حقول الإطار كمفاتيح والقيم المحسّنة.
         """
     ),
@@ -105,6 +118,11 @@ Format: Return a JSON object with framework field names as keys and enhanced val
 - رجّع كائن JSON واحد فقط ومفيش أي كلام تاني، ولا عناوين ولا Markdown.
 - لازم يبدأ بـ '{' وينتهي بـ '}' ويحط بس أسماء الحقول كمفاتيح.
 - لو مش قادر تدي قيمة لحقل سيبها "" (سلسلة فاضية).
+
+قواعد خروج صارمة (مهمة جدًا):
+- لازم الاستجابة تبقى كائن JSON واحد صحيح وبس — مفيش أي كلام تاني.
+- لو مقدرتش تطلع JSON صالح لأي سبب، رجّع بالظبط كائن JSON فاضي: {}
+- مفيش نقاط، ولا شروحات، ولا fences — بس كائن JSON.
 
 الصيغة: أرجع كائن JSON به أسماء الحقول والقيم المحسّنة.
         """
@@ -420,13 +438,26 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
             if parsed is not None:
                 return True, parsed
 
-        # Nothing parsed — return failure with raw response for diagnosis
-        return False, {'_error': 'Failed to parse JSON from model response', '_raw_response': response_text[:1000]}
+        # Nothing parsed — return failure with rich diagnostics for diagnosis
+        diagnostic = {
+            '_error': 'Failed to parse JSON from model response',
+            '_raw_response': response_text[:2000],
+            '_candidates_found': len(candidates) if 'candidates' in locals() else 0,
+            '_cleaned_preview': cleaned[:1200] if 'cleaned' in locals() else None,
+            '_response_repr': repr(response) if 'response' in locals() else None,
+            '_response_type': type(response).__name__ if 'response' in locals() else None,
+        }
+        return False, diagnostic
             
     except Exception as e:
         # Step 11: Return failure with error details so UI can show useful diagnostics
         err = str(e)
-        diagnostic = {'_error': f'Exception during AI call: {err}'}
+        diagnostic = {
+            '_error': f'Exception during AI call: {err}',
+            '_traceback': traceback.format_exc(),
+            '_response_repr': repr(response) if 'response' in locals() else None,
+            '_response_type': type(response).__name__ if 'response' in locals() else None,
+        }
 
         # If the error indicates the model is not found / unsupported, try to list available models
         try:
