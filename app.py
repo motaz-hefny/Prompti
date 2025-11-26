@@ -256,13 +256,30 @@ with col_preview:
                 use_container_width=True,
                 key='btn_copy'
             ):
-                # Step 17b-i-A: Copy to clipboard (simplified for demo)
-                # In production: use st.components.v1.html with JavaScript
+                # Step 17b-i-A: Copy to clipboard using Streamlit's built-in mechanism
+                # First try: Use JavaScript via st.components if available
+                # Second try: Use pyperclip library
+                # Third try: Show info about manual copy
                 try:
-                    import pyperclip
-                    pyperclip.copy(st.session_state['generated_prompt'])
-                    st.success(get_slang(st.session_state['lang'], 'copy_success'))
+                    # Step 17b-i-A-I: Use get_clipboard_js from utils to create JS solution
+                    clipboard_js = get_clipboard_js(
+                        st.session_state['generated_prompt'],
+                        st.session_state['lang']
+                    )
+                    # Step 17b-i-A-II: Display the JS-powered copy using HTML
+                    st.components.v1.html(clipboard_js, height=0)
+                    st.success(t(st.session_state['lang'], 'copy_success'))
+                except ImportError:
+                    # Step 17b-i-B: Fallback to pyperclip if available
+                    try:
+                        import pyperclip
+                        pyperclip.copy(st.session_state['generated_prompt'])
+                        st.success(t(st.session_state['lang'], 'copy_success'))
+                    except Exception:
+                        # Step 17b-i-C: Final fallback: show manual copy info
+                        st.info(t(st.session_state['lang'], 'copy_info'))
                 except Exception as e:
+                    # Step 17b-i-D: Catch any other errors
                     st.error(t(st.session_state['lang'], 'copy_fail'))
 
         # Step 17b-ii: Download Prompt button

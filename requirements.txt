@@ -3,15 +3,26 @@
 # This file lists all Python packages required to run Prompti.
 # Install with: pip install -r requirements.txt
 #
-# Package list:
-#   - streamlit: Web framework for rapid Prompt generator UI
-#   - pyperclip: Cross-platform clipboard access for copy-to-clipboard feature
-#   - python-dotenv: Load environment variables from .env file (future: for OAuth secrets)
+# Core packages:
+#   - streamlit>=1.28.0: Web framework for rapid Prompt generator UI
+#   - pyperclip>=1.8.2: Cross-platform clipboard access (backup for copy feature)
+#   - python-dotenv>=1.0.0: Load environment variables from .env file
+#
+# AI Enhancement (optional):
+#   - google-generativeai>=0.3.0: Google Gemini API for prompt enhancement
+#   - (Install: pip install google-generativeai)
+#   - Get free API key: https://ai.google.dev/apikey
+#
+# Development (optional):
+#   - pytest>=7.0.0: Unit testing framework
+#   - black>=23.0.0: Code formatting
 #
 # Notes:
+#   - Core packages are required for basic functionality
+#   - AI enhancement is optional (defaults to user input if unavailable)
 #   - All versions pinned for reproducible environments
 #   - Compatible with Python 3.9+
-#   - Lightweight dependencies (minimal bloat for fast deployment)
+#   - Lightweight core dependencies (minimal bloat for fast deployment)
 # ============================================================================
 
 # Step 1: Streamlit — Web app framework
@@ -29,6 +40,15 @@ pyperclip>=1.8.2
 # Version: >=1.0.0 (for future OAuth integration)
 python-dotenv>=1.0.0
 
+# Step 4: Google Generative AI — Gemini API client (OPTIONAL)
+# Provides: AI prompt enhancement via Google Gemini
+# Version: Latest (free tier with 60 req/min)
+# Get API key: https://ai.google.dev/apikey (no credit card needed)
+# Install separately: pip install google-generativeai
+# Note: If not installed, app still works (falls back to user input)
+# google-generativeai>=0.3.0
+
 # ==============================================================================
 # END requirements.txt
 # ==============================================================================
+
