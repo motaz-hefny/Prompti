@@ -261,7 +261,9 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
     
     # Step 6: Call Gemini API
     try:
-        model = genai.GenerativeModel(MODEL_NAME)
+        # Use a working model (probed/cached) to avoid model-not-found errors
+        working_model = get_working_model()
+        model = genai.GenerativeModel(working_model)
         response = model.generate_content(
             contents=[
                 {'role': 'user', 'parts': [{'text': system_prompt}]},
@@ -369,7 +371,8 @@ Return ONLY JSON with field names and suggested values."""
     
     # Step 4: Call API and return suggestions
     try:
-        model = genai.GenerativeModel(MODEL_NAME)
+        working_model = get_working_model()
+        model = genai.GenerativeModel(working_model)
         response = model.generate_content(user_message)
         
         # Step 5: Parse JSON from response
