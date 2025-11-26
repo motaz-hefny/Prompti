@@ -46,7 +46,7 @@ python-dotenv>=1.0.0
 # Get API key: https://ai.google.dev/apikey (no credit card needed)
 # Install separately: pip install google-generativeai
 # Note: If not installed, app still works (falls back to user input)
-# google-generativeai>=0.3.0
+google-generativeai>=0.3.0
 
 # ==============================================================================
 # END requirements.txt
