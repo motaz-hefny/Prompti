@@ -90,8 +90,33 @@ with st.sidebar.expander('🛠️ AI debug (temporary)', expanded=False):
                         if st.button('Use selected model'):
                             set_selected_model(choice)
                             st.success(f'Selected model: {choice}')
+                            # Force a rerun so the new model is used immediately
+                            st.experimental_rerun()
+                    # Also show the current working model cached in the enhancer
+                    try:
+                        import ai_enhancer as _ae
+                        current = _ae.get_working_model()
+                        st.caption(f'Current working model: {current}')
+                    except Exception:
+                        pass
                 else:
                     st.error(res.get('error', 'No models found'))
+        # Button to test selected model directly (non-destructive probe)
+        try:
+            if st.button('▶️ Test selected model'):
+                with st.spinner('Probing selected model...'):
+                    import ai_enhancer as _ae
+                    sel = _ae.SELECTED_MODEL or _ae.get_working_model()
+                    ok = False
+                    probe_info = None
+                    try:
+                        ok = _ae._probe_model(sel)
+                        probe_info = {'selected': sel, 'ok': ok}
+                    except Exception as e:
+                        probe_info = {'error': str(e)}
+                    st.write(probe_info)
+        except Exception:
+            st.caption('Model test unavailable in this build')
     except Exception:
         st.caption('Model listing not available in this build')
 
