@@ -71,11 +71,149 @@ st.sidebar.radio(
 # Switching frameworks preserves field state for each framework
 # Stores in st.session_state['framework'] via key parameter
 # DO NOT use st.session_state['framework'] = ... when key is set
-st.sidebar.selectbox(
-    label=t(st.session_state['lang'], 'framework_label'),  # "Framework" / "الإطار"
-    options=['ICDF', 'RCR-EOC', 'MICRO', 'COSTAR'],
-    key='framework'
-)
+
+# Step 7a: Framework descriptions for tooltips and help
+framework_info = {
+    'ICDF': {
+        'en': {
+            'name': 'ICDF',
+            'tagline': 'Simple & Effective',
+            'description': 'Instruction + Context + Data + Format',
+            'when': 'Use for: Blog posts, summaries, general writing',
+            'example': 'Write a blog post about AI'
+        },
+        'ar': {
+            'name': 'ICDF',
+            'tagline': 'بسيط وفعال',
+            'description': 'تعليمات + سياق + بيانات + صيغة',
+            'when': 'استخدم لـ: منشورات المدونة، الملخصات، الكتابة العامة',
+            'example': 'اكتب منشور مدونة عن الذكاء الاصطناعي'
+        },
+        'eg': {
+            'name': 'ICDF',
+            'tagline': 'بسيط وكويس',
+            'description': 'أوامر + سياق + معلومات + شكل',
+            'when': 'استخدمه لـ: بوسات، ملخصات، كتابة عادي',
+            'example': 'اكتب بوست عن الذكاء الصناعي'
+        }
+    },
+    'RCR-EOC': {
+        'en': {
+            'name': 'RCR-EOC',
+            'tagline': 'Professional & Detailed',
+            'description': 'Role + Context + Request + Examples + Output + Constraints',
+            'when': 'Use for: Complex tasks, technical work, precise output',
+            'example': 'Act as a Python expert and review my code'
+        },
+        'ar': {
+            'name': 'RCR-EOC',
+            'tagline': 'احترافي ومفصل',
+            'description': 'دور + سياق + طلب + أمثلة + مخرجات + قيود',
+            'when': 'استخدم لـ: المهام المعقدة، العمل التقني، المخرجات الدقيقة',
+            'example': 'تصرف كخبير Python وراجع كودي'
+        },
+        'eg': {
+            'name': 'RCR-EOC',
+            'tagline': 'احترافي وتفصيلي',
+            'description': 'دور + سياق + طلب + أمثلة + نتائج + حدود',
+            'when': 'استخدمه لـ: الشغل المعقد، المهام التقنية، النتائج الدقيقة',
+            'example': 'كن خبير Python وراجع الكود بتاعي'
+        }
+    },
+    'MICRO': {
+        'en': {
+            'name': 'MICRO',
+            'tagline': 'Creative & Engaging',
+            'description': 'Message + Intention + Context + Rhythm + Output',
+            'when': 'Use for: Social media, video scripts, marketing copy',
+            'example': 'Create an engaging TikTok script about productivity'
+        },
+        'ar': {
+            'name': 'MICRO',
+            'tagline': 'إبداعي وجذاب',
+            'description': 'الرسالة + النية + السياق + الإيقاع + المخرجات',
+            'when': 'استخدم لـ: وسائل التواصل، سيناريوهات الفيديو، نسخ التسويق',
+            'example': 'أنشئ سيناريو TikTok جذاب عن الإنتاجية'
+        },
+        'eg': {
+            'name': 'MICRO',
+            'tagline': 'إبداعي وجذاب',
+            'description': 'الرسالة + القصد + السياق + الإيقاع + النتيجة',
+            'when': 'استخدمه لـ: السوشيال ميديا، فيديوهات، تسويق',
+            'example': 'عمل فيديو TikTok حلو عن الإنتاجية'
+        }
+    },
+    'COSTAR': {
+        'en': {
+            'name': 'COSTAR',
+            'tagline': 'Sales & Marketing',
+            'description': 'Context + Offer + Style + Target + Action + Result',
+            'when': 'Use for: Sales pages, email campaigns, conversion focus',
+            'example': 'Create a compelling email to sell our new product'
+        },
+        'ar': {
+            'name': 'COSTAR',
+            'tagline': 'المبيعات والتسويق',
+            'description': 'السياق + العرض + الأسلوب + الهدف + الإجراء + النتيجة',
+            'when': 'استخدم لـ: صفحات المبيعات، حملات البريد الإلكتروني، التركيز على التحويل',
+            'example': 'أنشئ بريداً إلكترونياً مقنعاً لبيع منتجنا الجديد'
+        },
+        'eg': {
+            'name': 'COSTAR',
+            'tagline': 'مبيعات وتسويق',
+            'description': 'السياق + العرض + الأسلوب + الهدف + الحركة + النتيجة',
+            'when': 'استخدمه لـ: صفحات البيع، إيميلات، تحويل الزوار',
+            'example': 'إكتب إيميل كويس لبيع المنتج الجديد بتاعنا'
+        }
+    }
+}
+
+# Step 7b: Create framework selector with help text
+col_framework, col_help = st.sidebar.columns([3, 1])
+
+with col_framework:
+    # Step 7b-i: Show current framework info
+    current_lang = st.session_state['lang']
+    current_framework = st.session_state['framework']
+    
+    # Step 7b-ii: Get info for current framework
+    fw_info = framework_info.get(current_framework, {}).get(current_lang, {})
+    fw_name = fw_info.get('name', current_framework)
+    fw_tagline = fw_info.get('tagline', '')
+    
+    # Step 7b-iii: Display framework selector with tagline
+    st.selectbox(
+        label=t(st.session_state['lang'], 'framework_label'),  # "Framework" / "الإطار"
+        options=['ICDF', 'RCR-EOC', 'MICRO', 'COSTAR'],
+        format_func=lambda x: f"{x} - {framework_info.get(x, {}).get(current_lang, {}).get('tagline', '')}",
+        key='framework'
+    )
+
+with col_help:
+    # Step 7b-iv: Help button to show framework details
+    if st.button('ℹ️', help=t(st.session_state['lang'], 'framework_help') or 'Learn about frameworks'):
+        # Step 7b-v: Store help modal state in session
+        st.session_state['show_framework_help'] = True
+
+# Step 7c: Show framework help modal if requested
+if st.session_state.get('show_framework_help', False):
+    # Step 7c-i: Create expander with framework details
+    with st.sidebar.expander("📚 Framework Guide", expanded=True):
+        # Step 7c-ii: Display all frameworks with descriptions
+        for fw_name in ['ICDF', 'RCR-EOC', 'MICRO', 'COSTAR']:
+            fw_data = framework_info.get(fw_name, {}).get(current_lang, {})
+            
+            # Step 7c-iii: Show framework details
+            st.markdown(f"### {fw_data.get('name', fw_name)} - {fw_data.get('tagline', '')}")
+            st.write(fw_data.get('description', ''))
+            st.caption(f"💡 {fw_data.get('when', '')}")
+            st.caption(f"📝 {fw_data.get('example', '')}")
+            st.divider()
+        
+        # Step 7c-iv: Close button
+        if st.button("✅ Got it!", key="close_framework_help"):
+            st.session_state['show_framework_help'] = False
+            st.rerun()
 
 # Step 8: Initialize field storage for current framework if not present
 if st.session_state['framework'] not in st.session_state['fields']:

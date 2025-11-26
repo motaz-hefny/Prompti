@@ -116,6 +116,10 @@ TRANSLATIONS = {
         'ai_success': '✨ Prompt enhanced successfully!',
         'ai_failed': 'AI enhancement unavailable. Using your input as-is.',
         'ai_empty_input': 'Please fill in at least one field first',
+        
+        # ==== Framework Help ====
+        'framework_help': 'Click to learn about each framework',
+        'framework_guide_title': '📚 Framework Guide',
     },
 
     # ========================================================================
@@ -209,6 +213,10 @@ TRANSLATIONS = {
         'ai_success': '✨ تم تحسين العبارة بنجاح!',
         'ai_failed': 'تحسين الذكاء الاصطناعي غير متاح. استخدام إدخالك كما هو.',
         'ai_empty_input': 'يرجى تعبئة حقل واحد على الأقل أولاً',
+        
+        # ==== Framework Help ====
+        'framework_help': 'انقر لتعلم المزيد عن كل إطار عمل',
+        'framework_guide_title': '📚 دليل أطر العمل',
     },
 
     # ========================================================================
@@ -302,6 +310,10 @@ TRANSLATIONS = {
         'ai_success': '✨ تمام! الذكاء الاصطناعي حسّن البرومبت!',
         'ai_failed': 'الذكاء الاصطناعي مش متاح دلوقتي. بس خليك في البرومبت بتاعك.',
         'ai_empty_input': 'ملّي حقل واحد على الأقل بالأول',
+        
+        # ==== Framework Help ====
+        'framework_help': 'اضغط عشان تفهم الأطر بتاعة البرومبت',
+        'framework_guide_title': '📚 شرح الأطر',
     }
 }
 
