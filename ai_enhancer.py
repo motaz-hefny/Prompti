@@ -360,8 +360,7 @@ based on the user's intent. Return ONLY valid JSON with the framework fields."""
                 {'role': 'user', 'parts': [{'text': system_prompt}]},
                 {'role': 'model', 'parts': [{'text': 'I understand. I will enhance prompts by filling in missing framework fields intelligfully.'}]},
                 {'role': 'user', 'parts': [{'text': user_message}]}
-            ],
-            temperature=0
+            ]
         )
         
         # Step 7: Parse the response
@@ -465,7 +464,7 @@ Return ONLY JSON with field names and suggested values."""
     try:
         working_model = get_working_model()
         model = genai.GenerativeModel(working_model)
-        response = model.generate_content(user_message, temperature=0)
+        response = model.generate_content(user_message)
         
         # Step 5: Parse JSON from response
         json_start = response.text.find('{')
