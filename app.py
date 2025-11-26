@@ -55,6 +55,28 @@ if 'generated_prompt' not in st.session_state:
 
 st.sidebar.markdown("## ⚙️ Settings")
 
+# ===== Debug / Diagnostics (temporary) =====
+try:
+    import importlib
+    genai_available_local = importlib.util.find_spec('google.generativeai') is not None
+except Exception:
+    genai_available_local = False
+
+import os as _os
+secret_present_local = bool(_os.getenv('GOOGLE_GENAI_API_KEY'))
+try:
+    # Do not reveal the key value — only presence
+    secret_present_local = secret_present_local or bool(st.secrets.get('GOOGLE_GENAI_API_KEY'))
+except Exception:
+    pass
+
+with st.sidebar.expander('🛠️ AI debug (temporary)', expanded=False):
+    st.write('- SDK importable:', genai_available_local)
+    st.write('- Secret configured (env or st.secrets):', secret_present_local)
+    st.write('- If either is False, check Logs after a failed attempt')
+    st.caption('This panel is temporary for diagnosing AI setup. I will remove it after we confirm everything works.')
+
+
 # Step 6: Language selector (radio button)
 # Translates ALL UI text when changed
 # Stores in st.session_state['lang'] ('en', 'ar', or 'eg')
