@@ -99,8 +99,20 @@ def init_gemini_api(api_key: str = None) -> bool:
     if not GENAI_AVAILABLE:
         return False
     
-    # Step 1: Get API key from parameter or environment
+    # Step 1: Get API key from parameter, environment, or Streamlit secrets
     key = api_key or os.getenv('GOOGLE_GENAI_API_KEY')
+
+    # If running inside Streamlit and user put the key into Streamlit Secrets,
+    # prefer that value (useful for Streamlit Cloud deployments).
+    if not key:
+        try:
+            # Import locally to avoid requiring Streamlit for non-UI contexts
+            import streamlit as _st
+            # Streamlit stores secrets as a dict-like object
+            key = _st.secrets.get('GOOGLE_GENAI_API_KEY') or _st.secrets.get('google_genai_api_key')
+        except Exception:
+            # If Streamlit isn't available or no secret is present, continue
+            key = key
     
     # Step 2: If no key provided, return False
     if not key:

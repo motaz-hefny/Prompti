@@ -296,23 +296,31 @@ with col_form:
             try:
                 from ai_enhancer import init_gemini_api, enhance_prompt_with_ai
                 import os
-                
-                # Step 14-AI-ii: Check if API key is available
+
+                # Step 14-AI-ii: Check if API key is available via env or Streamlit secrets
                 api_key = os.getenv('GOOGLE_GENAI_API_KEY')
-                
                 if not api_key:
-                    # Step 14-AI-iii: No API key found
+                    try:
+                        api_key = st.secrets.get('GOOGLE_GENAI_API_KEY') or st.secrets.get('google_genai_api_key')
+                    except Exception:
+                        api_key = api_key
+
+                if not api_key:
+                    # Step 14-AI-iii: No API key found — give Streamlit-specific guidance
                     st.warning(
                         "⚠️ Google Gemini API key not configured.\n\n"
                         "Get a free key:\n"
                         "1. Visit: https://ai.google.dev/apikey\n"
-                        "2. Click 'Get API Key'\n"
-                        "3. Copy your key\n"
-                        "4. Set environment variable: GOOGLE_GENAI_API_KEY=your_key\n"
-                        "5. Restart the app"
+                        "2. Click 'Get API Key' → Create key and copy it\n\n"
+                        "To configure on this machine (temporary):\n"
+                        "  export GOOGLE_GENAI_API_KEY=your_key_here\n\n"
+                        "To configure on Streamlit Cloud (recommended for deployed app):\n"
+                        "  1. Open your app on Streamlit Cloud → Settings → Secrets\n"
+                        "  2. Add a key: `GOOGLE_GENAI_API_KEY` with your API key value\n"
+                        "  3. Save and redeploy the app"
                     )
                 else:
-                    # Step 14-AI-iv: Initialize API and enhance prompt
+                    # Step 14-AI-iv: Initialize API and enhance prompt (pass the discovered key)
                     init_gemini_api(api_key)
                     
                     # Step 14-AI-v: Collect current input from fields
