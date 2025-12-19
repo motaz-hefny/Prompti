@@ -28,7 +28,6 @@ package-lock.json
 history/*.json
 .vite_cache
 
-# Local artifacts and sensitive files
 Prompti.zip
 _import_from_medo/
 __pycache__/
