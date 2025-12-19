@@ -1,198 +1,442 @@
-# DEPLOYMENT_GUIDE.md — GitHub & Streamlit Deployment
+# Prompti Deployment Guide
 
-**Date**: 2025-11-26  
-**Project**: Prompti — Structured Prompt Generator  
-**Status**: ✅ Ready for Deployment
+This guide covers how to deploy your Prompti application to various hosting platforms.
 
----
+## Important Notes
 
-## 🚀 Deployment Steps
+### Google Sign-In Status
+⚠️ **The Google Sign-In button is currently a MOCK/PLACEHOLDER**
+- It's a visual element only - clicking it does nothing
+- No actual Google OAuth authentication is implemented
+- This is intentional as per the original requirements
+- To implement real Google Sign-In, you would need to:
+  1. Set up Google OAuth 2.0 credentials in Google Cloud Console
+  2. Install a library like `@react-oauth/google`
+  3. Implement authentication flow and user session management
+  4. Add backend support for token verification
 
-### **Step 1: Create GitHub Repository**
-
-Your GitHub profile: **https://github.com/motaz-hefny**
-
-Follow these steps to create a new repository:
-
-1. Go to https://github.com/new
-2. **Repository name**: `Prompti` (or `prompti-structured-prompt-generator`)
-3. **Description**: "Structured Prompt Generator - Multilingual AI prompt creation tool with 4 frameworks and 3 languages (English, Arabic, Egyptian)"
-4. **Visibility**: Select **PUBLIC** (required for Streamlit Cloud)
-5. **Initialize repository**: Leave blank (we already have files)
-6. Click **Create repository**
-
-After creation, you'll see instructions. Use this instead:
+### Current Authentication
+- The app works without any authentication
+- All data is stored locally in browser sessionStorage
+- No user accounts or cloud storage
+- Perfect for personal use and testing
 
 ---
 
-### **Step 2: Push Code to GitHub**
+## Deployment Options
 
-Run these commands in your terminal:
+### Option 1: Vercel (Recommended - Easiest)
 
+Vercel is the easiest way to deploy React applications with automatic builds and HTTPS.
+
+#### Steps:
+
+1. **Install Vercel CLI** (optional):
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Deploy via Vercel Website**:
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New Project"
+   - Import your Git repository (GitHub, GitLab, or Bitbucket)
+   - Vercel will auto-detect it's a Vite project
+   - Add environment variable:
+     - Key: `VITE_GEMINI_API_KEY`
+     - Value: `AIzaSyDZBbO8P4MEZ5lUhade1G8JJVJL_GKdDKE`
+   - Click "Deploy"
+
+3. **Deploy via CLI** (alternative):
+   ```bash
+   cd /workspace/app-855yksanby0x
+   vercel
+   ```
+   - Follow the prompts
+   - Add environment variables when asked
+
+4. **Configure Environment Variables**:
+   - Go to Project Settings → Environment Variables
+   - Add: `VITE_GEMINI_API_KEY` = `AIzaSyDZBbO8P4MEZ5lUhade1G8JJVJL_GKdDKE`
+   - Redeploy if needed
+
+**Pros:**
+- Free tier available
+- Automatic HTTPS
+- Global CDN
+- Automatic deployments from Git
+- Easy environment variable management
+
+**Your app will be live at**: `https://your-project-name.vercel.app`
+
+---
+
+### Option 2: Netlify
+
+Another excellent option for static sites and React apps.
+
+#### Steps:
+
+1. **Deploy via Netlify Website**:
+   - Go to [netlify.com](https://netlify.com)
+   - Click "Add new site" → "Import an existing project"
+   - Connect your Git repository
+   - Build settings:
+     - Build command: `npm run build`
+     - Publish directory: `dist`
+   - Add environment variable:
+     - Key: `VITE_GEMINI_API_KEY`
+     - Value: `AIzaSyDZBbO8P4MEZ5lUhade1G8JJVJL_GKdDKE`
+   - Click "Deploy"
+
+2. **Deploy via Netlify CLI** (alternative):
+   ```bash
+   npm install -g netlify-cli
+   cd /workspace/app-855yksanby0x
+   npm run build
+   netlify deploy --prod
+   ```
+
+**Pros:**
+- Free tier available
+- Automatic HTTPS
+- Form handling (if needed later)
+- Serverless functions support
+
+**Your app will be live at**: `https://your-site-name.netlify.app`
+
+---
+
+### Option 3: GitHub Pages
+
+Free hosting directly from your GitHub repository.
+
+#### Steps:
+
+1. **Install gh-pages**:
+   ```bash
+   npm install --save-dev gh-pages
+   ```
+
+2. **Update package.json**:
+   Add these scripts:
+   ```json
+   {
+     "scripts": {
+       "predeploy": "npm run build",
+       "deploy": "gh-pages -d dist"
+     },
+     "homepage": "https://yourusername.github.io/prompti"
+   }
+   ```
+
+3. **Update vite.config.ts**:
+   Add base path:
+   ```typescript
+   export default defineConfig({
+     base: '/prompti/',
+     // ... rest of config
+   })
+   ```
+
+4. **Deploy**:
+   ```bash
+   npm run deploy
+   ```
+
+5. **Configure GitHub Pages**:
+   - Go to repository Settings → Pages
+   - Source: Deploy from branch `gh-pages`
+   - Save
+
+**Note**: Environment variables need to be built into the app or use a different approach for GitHub Pages.
+
+**Your app will be live at**: `https://yourusername.github.io/prompti`
+
+---
+
+### Option 4: Cloudflare Pages
+
+Fast, global deployment with excellent performance.
+
+#### Steps:
+
+1. **Deploy via Cloudflare Dashboard**:
+   - Go to [pages.cloudflare.com](https://pages.cloudflare.com)
+   - Click "Create a project"
+   - Connect your Git repository
+   - Build settings:
+     - Build command: `npm run build`
+     - Build output directory: `dist`
+   - Add environment variable:
+     - Variable name: `VITE_GEMINI_API_KEY`
+     - Value: `AIzaSyDZBbO8P4MEZ5lUhade1G8JJVJL_GKdDKE`
+   - Click "Save and Deploy"
+
+**Pros:**
+- Free tier available
+- Excellent performance
+- Global CDN
+- DDoS protection
+
+**Your app will be live at**: `https://prompti.pages.dev`
+
+---
+
+### Option 5: Self-Hosted (VPS/Server)
+
+For complete control, deploy to your own server.
+
+#### Requirements:
+- A server (DigitalOcean, AWS, Linode, etc.)
+- Node.js installed
+- Nginx or Apache web server
+
+#### Steps:
+
+1. **Build the application**:
+   ```bash
+   npm run build
+   ```
+
+2. **Upload the `dist` folder** to your server:
+   ```bash
+   scp -r dist/* user@your-server:/var/www/prompti
+   ```
+
+3. **Configure Nginx**:
+   ```nginx
+   server {
+       listen 80;
+       server_name your-domain.com;
+       root /var/www/prompti;
+       index index.html;
+
+       location / {
+           try_files $uri $uri/ /index.html;
+       }
+   }
+   ```
+
+4. **Set up HTTPS** with Let's Encrypt:
+   ```bash
+   sudo certbot --nginx -d your-domain.com
+   ```
+
+---
+
+## Environment Variables for Production
+
+### Important: Securing Your API Key
+
+⚠️ **Security Warning**: Your Gemini API key is exposed in the client-side code. This is acceptable for:
+- Personal projects
+- Internal tools
+- Low-traffic applications
+
+For production applications with many users, consider:
+1. Setting up API key restrictions in Google Cloud Console
+2. Limiting requests per day
+3. Monitoring usage
+4. Using a backend proxy to hide the key
+
+### Setting Environment Variables
+
+Different platforms handle environment variables differently:
+
+**Vercel/Netlify/Cloudflare**:
+- Add via dashboard: `VITE_GEMINI_API_KEY`
+- Variables are injected at build time
+
+**GitHub Pages**:
+- Use GitHub Secrets for Actions
+- Build with secrets in CI/CD pipeline
+
+**Self-Hosted**:
+- Create `.env` file on server
+- Ensure it's not publicly accessible
+
+---
+
+## Pre-Deployment Checklist
+
+Before deploying, ensure:
+
+- [ ] API key is configured in environment variables
+- [ ] Application builds successfully: `npm run build`
+- [ ] No console errors in production build
+- [ ] All features tested locally
+- [ ] Environment variables are set correctly
+- [ ] `.env` file is in `.gitignore` (already done)
+- [ ] Custom domain configured (optional)
+- [ ] HTTPS is enabled (automatic on most platforms)
+
+---
+
+## Post-Deployment Testing
+
+After deployment, test:
+
+1. **Basic Functionality**:
+   - [ ] Page loads correctly
+   - [ ] Language switching works
+   - [ ] Framework selection works
+   - [ ] Form inputs work
+
+2. **AI Features**:
+   - [ ] Manual prompt generation works
+   - [ ] AI prompt generation works
+   - [ ] Loading states display correctly
+   - [ ] Error messages show properly
+
+3. **Export Features**:
+   - [ ] Copy to clipboard works
+   - [ ] Download works
+   - [ ] Filenames are correct
+
+4. **Multilingual**:
+   - [ ] English UI works
+   - [ ] Arabic UI works with RTL
+   - [ ] Egyptian Arabic works
+
+5. **Responsive Design**:
+   - [ ] Desktop layout works
+   - [ ] Mobile layout works
+   - [ ] Tablet layout works
+
+---
+
+## Custom Domain Setup
+
+### Vercel:
+1. Go to Project Settings → Domains
+2. Add your custom domain
+3. Update DNS records as instructed
+
+### Netlify:
+1. Go to Site Settings → Domain Management
+2. Add custom domain
+3. Configure DNS
+
+### Cloudflare Pages:
+1. Go to Custom Domains
+2. Add your domain
+3. DNS is automatically configured if using Cloudflare DNS
+
+---
+
+## Monitoring and Analytics
+
+Consider adding:
+
+1. **Google Analytics**: Track usage and user behavior
+2. **Sentry**: Error tracking and monitoring
+3. **Vercel Analytics**: Built-in analytics (if using Vercel)
+
+---
+
+## Updating Your Deployment
+
+### Automatic Deployments (Recommended):
+- Connect your Git repository
+- Push changes to main branch
+- Platform automatically rebuilds and deploys
+
+### Manual Deployments:
 ```bash
-# Navigate to your project
-cd "/home/motaz/WebProjects/Prompti - Structured Prompt Generator"
-
-# Add GitHub remote (replace YOUR_REPO_NAME with your repo name)
-git remote add origin https://github.com/motaz-hefny/Prompti.git
-
-# Rename branch to main (Streamlit prefers 'main' over 'master')
-git branch -m master main
-
-# Push to GitHub
-git push -u origin main
-```
-
-**Example with full repo name:**
-```bash
-git remote add origin https://github.com/motaz-hefny/Prompti.git
-git branch -m master main
-git push -u origin main
-```
-
-Once complete, verify at: https://github.com/motaz-hefny/Prompti
-
----
-
-### **Step 3: Deploy to Streamlit Community Cloud**
-
-1. **Go to**: https://share.streamlit.io
-2. **Sign in** with Google (your Streamlit account uses Google auth ✓)
-3. **Click "New app"**
-4. **Connect repository:**
-   - GitHub account: `motaz-hefny`
-   - Repository: `Prompti`
-   - Branch: `main`
-   - Main file path: `app.py`
-5. **Click "Deploy"**
-
-**That's it!** Streamlit will automatically:
-- Install dependencies from `requirements.txt`
-- Run `app.py`
-- Deploy to public URL
-- Enable automatic redeploys on GitHub push
-
-Your app will be live at:
-```
-https://share.streamlit.io/motaz-hefny/Prompti/main/app.py
-```
-
-Or a shorter custom URL (Streamlit generates this).
-
----
-
-## 🔑 Authentication Note
-
-Both GitHub and Streamlit use Google authentication for you ✓
-
-- **GitHub**: Logged in with Google
-- **Streamlit**: Logged in with Google
-
-**No additional credentials needed!**
-
----
-
-## 📋 Pre-Deployment Checklist
-
-✅ **Code Ready**: All 15 files created and committed  
-✅ **Git Initialized**: Local repository ready  
-✅ **`.gitignore`**: Excludes Python cache, secrets, etc.  
-✅ **`.streamlit/config.toml`**: Streamlit configuration ready  
-✅ **`requirements.txt`**: All dependencies listed  
-✅ **`app.py`**: Main entry point configured  
-✅ **Documentation**: README.md comprehensive and ready  
-✅ **No Secrets**: No hardcoded API keys or credentials  
-✅ **Public Repository**: Ready for Streamlit Cloud  
-
----
-
-## 📊 Deployment Summary
-
-| Step | Action | Time | Status |
-|------|--------|------|--------|
-| 1 | Create GitHub repo | 1 min | ⏳ Do now |
-| 2 | Push code to GitHub | 2 min | ⏳ Do now |
-| 3 | Connect Streamlit Cloud | 2 min | ⏳ Do after push |
-| 4 | Wait for deployment | 3-5 min | ⏳ Automatic |
-
-**Total time: ~10 minutes**
-
----
-
-## 🔗 Post-Deployment
-
-Once deployed, you'll have:
-
-1. **GitHub Repository**: https://github.com/motaz-hefny/Prompti
-2. **Streamlit Live App**: https://share.streamlit.io/motaz-hefny/Prompti/main/app.py
-3. **Share URLs**: Streamlit generates a shareable short URL
-
-### Sharing your app:
-- **GitHub**: For developers who want to see/modify the code
-- **Streamlit**: For end-users who just want to use the app
-- **Both**: For collaboration
-
----
-
-## 🛠️ Future Updates
-
-After initial deployment, updating is easy:
-
-```bash
-# Make changes locally
-# (edit code, test locally with: streamlit run app.py)
-
-# Commit changes
-git add .
-git commit -m "Description of changes"
-
-# Push to GitHub
-git push
-
-# Streamlit automatically redeploys! (no manual steps needed)
+npm run build
+# Then upload dist folder or use CLI
 ```
 
 ---
 
-## ⚠️ Important Notes
+## Troubleshooting
 
-### **Why Public Repository?**
-- Streamlit Community Cloud requires public repos
-- Your code will be visible on GitHub
-- This is standard for open-source projects
+### Build Fails:
+- Check Node.js version (should be 18+)
+- Clear node_modules: `rm -rf node_modules && npm install`
+- Check for TypeScript errors: `npm run lint`
 
-### **Environment Variables (if needed in future)**
-- Store secrets in Streamlit Secrets: https://docs.streamlit.io/streamlit-cloud/get-started/deploy-an-app/connect-an-app-to-github#deploy-your-app
-- Never commit `.env` files or `secrets.toml`
+### Environment Variables Not Working:
+- Ensure they start with `VITE_`
+- Rebuild after adding variables
+- Check platform-specific documentation
 
-### **Custom Domain (optional, paid feature)**
-- Currently: Free tier uses share.streamlit.io
-- Custom domain: Available on Streamlit's paid plans
+### AI Generation Not Working:
+- Verify API key is set correctly
+- Check browser console for errors
+- Test API key at Google AI Studio
+- Check API quota and rate limits
 
----
-
-## 📞 Support
-
-If you encounter issues:
-
-1. **GitHub push fails**: Check git remote (`git remote -v`)
-2. **Streamlit deployment fails**: Check app.py runs locally first (`streamlit run app.py`)
-3. **App won't start**: Check logs on Streamlit Cloud dashboard
-4. **Missing dependencies**: Verify all imports in app.py are in requirements.txt
+### 404 Errors on Refresh:
+- Configure platform for SPA routing
+- Vercel/Netlify handle this automatically
+- For others, ensure server redirects to index.html
 
 ---
 
-## ✅ You're Ready!
+## Cost Considerations
 
-Your Prompti project is:
-- ✅ Fully coded (1,643 LOC)
-- ✅ Fully documented (1,350+ LOC)
-- ✅ Git initialized
-- ✅ Ready for GitHub
-- ✅ Ready for Streamlit Cloud
+### Free Tiers:
 
-**Next: Create GitHub repo and push code!** 🚀
+**Vercel**:
+- 100 GB bandwidth/month
+- Unlimited personal projects
+- Automatic HTTPS
+
+**Netlify**:
+- 100 GB bandwidth/month
+- 300 build minutes/month
+- Automatic HTTPS
+
+**Cloudflare Pages**:
+- Unlimited bandwidth
+- 500 builds/month
+- Automatic HTTPS
+
+**GitHub Pages**:
+- 100 GB bandwidth/month
+- 100 GB storage
+- Free for public repositories
+
+**Google Gemini API**:
+- 60 requests/minute (free tier)
+- 1,500 requests/day (free tier)
+- Monitor usage at [Google AI Studio](https://makersuite.google.com/)
 
 ---
 
-**Questions?** See README.md or DEVELOPMENT.md for more info.
+## Recommended Deployment Path
+
+For your Prompti app, I recommend:
+
+1. **Start with Vercel** (easiest, best DX)
+2. Connect your GitHub repository
+3. Add environment variable for Gemini API key
+4. Deploy with one click
+5. Get a free `.vercel.app` domain
+6. Add custom domain later if needed
+
+**Total time**: 5-10 minutes
+**Cost**: Free
+
+---
+
+## Support and Resources
+
+- [Vercel Documentation](https://vercel.com/docs)
+- [Netlify Documentation](https://docs.netlify.com)
+- [Vite Deployment Guide](https://vitejs.dev/guide/static-deploy.html)
+- [Google Gemini API Docs](https://ai.google.dev/docs)
+
+---
+
+## Next Steps
+
+1. Choose a deployment platform
+2. Create an account
+3. Connect your repository
+4. Add environment variables
+5. Deploy!
+6. Share your app URL
+
+Your Prompti app is ready to go live! 🚀

@@ -1,0 +1,55 @@
+# Task: Build Prompti - Structured Prompt Generator with AI Enhancement
+
+## Plan
+- [x] Step 1: Set up project structure and types
+  - [x] Create types for frameworks, languages, translations
+  - [x] Define prompt field structures
+- [x] Step 2: Create translation system
+  - [x] English translations
+  - [x] Modern Standard Arabic translations
+  - [x] Egyptian Arabic translations with slang variants
+- [x] Step 3: Create utility functions
+  - [x] Prompt assembly logic
+  - [x] RTL detection
+  - [x] Export functions (copy, download)
+- [x] Step 4: Build core components
+  - [x] Sidebar component (language selector, framework selector, sign-in)
+  - [x] Dynamic form component with framework-specific fields
+  - [x] Live preview component
+  - [x] Export controls component
+- [x] Step 5: Implement main application
+  - [x] Session state management
+  - [x] Framework switching logic
+  - [x] Field validation
+  - [x] Example insertion
+- [x] Step 6: Add styling and RTL support
+  - [x] Design system with blue accent color
+  - [x] RTL CSS for Arabic languages
+  - [x] Responsive layout
+- [x] Step 7: Add AI-powered prompt generation
+  - [x] Create Gemini API integration utility
+  - [x] Add AI generation button to PreviewPanel
+  - [x] Implement loading states for AI generation
+  - [x] Add AI-generated prompt display with separate card
+  - [x] Update translations for AI-related strings
+  - [x] Add environment variable configuration
+  - [x] Create .env.example file
+  - [x] Update session state to store AI prompts
+  - [x] Add error handling for API failures
+- [x] Step 8: Testing and validation
+  - [x] Test all frameworks
+  - [x] Test language switching
+  - [x] Test RTL layout
+  - [x] Test export functionality
+  - [x] Test AI generation feature
+  - [x] Run lint
+
+## Notes
+- Adapting Streamlit/Python requirements to React/TypeScript stack
+- No backend needed - all client-side with session storage
+- All features implemented successfully
+- Lint check passed with no errors
+- AI generation feature added using Google Gemini API
+- Users can compare manual assembly vs AI-enhanced prompts
+- Application works without API key (AI feature disabled)
+- Comprehensive error handling for API failures
